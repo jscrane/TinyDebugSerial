@@ -6,17 +6,17 @@
 
   This file is part of Arduino-Tiny.
 
-  Arduino-Tiny is free software: you can redistribute it and/or modify it 
-  under the terms of the GNU Lesser General Public License as published by 
+  Arduino-Tiny is free software: you can redistribute it and/or modify it
+  under the terms of the GNU Lesser General Public License as published by
   the Free Software Foundation, either version 3 of the License, or (at your
   option) any later version.
 
-  Arduino-Tiny is distributed in the hope that it will be useful, but 
-  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
+  Arduino-Tiny is distributed in the hope that it will be useful, but
+  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
   or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
   License for more details.
 
-  You should have received a copy of the GNU Lesser General Public License 
+  You should have received a copy of the GNU Lesser General Public License
   along with Arduino-Tiny.  If not, see <http://www.gnu.org/licenses/>.
 
 ==============================================================================*/
@@ -53,12 +53,12 @@ void TinyDebugSerialWriterInternalBug( void ) __attribute__((error("Serial (Tiny
 
 __attribute__((always_inline, unused)) static inline void TinyDebugSerialWriterBangOneByte( uint8_t value, uint8_t SER_REG, uint8_t SER_BIT, uint8_t lom, uint8_t him, uint8_t oloops, uint8_t iloops, uint8_t nops )
 {
-  if ( __builtin_constant_p( SER_REG ) 
-      && __builtin_constant_p( SER_BIT ) 
-      && __builtin_constant_p( lom ) 
+  if ( __builtin_constant_p( SER_REG )
+      && __builtin_constant_p( SER_BIT )
+      && __builtin_constant_p( lom )
       && __builtin_constant_p( him )
-      && __builtin_constant_p( oloops ) 
-      && __builtin_constant_p( iloops ) 
+      && __builtin_constant_p( oloops )
+      && __builtin_constant_p( iloops )
       && __builtin_constant_p( nops ) )
   {
       uint8_t i;
@@ -68,10 +68,10 @@ __attribute__((always_inline, unused)) static inline void TinyDebugSerialWriterB
       uint8_t b;  // Initialized to the low bits
       uint8_t hib;
       uint8_t m;
-      
+
       b   = ((value << 1) & 0x1F);
       hib = ((value >> 4) & 0x1F) | 0x10;
-      
+
       asm volatile
       (
         "ldi   %[j], 2"                           "\n\t"
@@ -95,19 +95,19 @@ __attribute__((always_inline, unused)) static inline void TinyDebugSerialWriterB
 
       "L%=ntop: "
         "ror   %[b]"                              "\n\t"      // ---> 1
-        
-        "brcs  L%=bxh"                            "\n\t"      // 1  (not taken) 
+
+        "brcs  L%=bxh"                            "\n\t"      // 1  (not taken)
         "cbi   %[serreg], %[serbit]"              "\n\t"      // 2
-        "rjmp  L%=bxz"                            "\n\t"      // 2 
-        
-      "L%=bxh: "                                              // 2  (taken) 
+        "rjmp  L%=bxz"                            "\n\t"      // 2
+
+      "L%=bxh: "                                              // 2  (taken)
         "sbi   %[serreg], %[serbit]"              "\n\t"      // 2
-        "nop"                                     "\n\t"      // 1 
+        "nop"                                     "\n\t"      // 1
 
                                                               // ---> 5
       "L%=bxz: "
 
-        "ror   %[m]"                              "\n\t"      // ---> 3 or 4 
+        "ror   %[m]"                              "\n\t"      // ---> 3 or 4
         "brcc  L%=bnoe"                           "\n\t"      //
         "nop"                                     "\n\t"      //
         "nop"                                     "\n\t"      //
@@ -150,13 +150,13 @@ __attribute__((always_inline, unused)) static inline void TinyDebugSerialWriterB
       "L%=bfin: "
 
         "sei"                                     "\n\t"
-        : 
+        :
           [i] "=&r" ( i ),
           [j] "=&r" ( j ),
           [ol] "=&r" ( ol ),
           [il] "=&r" ( il ),
           [m] "=&r" ( m )
-        : 
+        :
           [b] "r" ( b ),
           [hib] "r" ( hib ),
           [serreg] "I" ( SER_REG ),
@@ -193,8 +193,8 @@ class TinyDebugSerialWriter_1_9600 : public TinyDebugSerialWriter
       (
         "sbi   %[serreg]-1, %[serbit]"            "\n\t"
         "sbi   %[serreg], %[serbit]"              "\n\t"
-        : 
-        : 
+        :
+        :
           [serreg] "I" ( SER_REG ),
           [serbit] "I" ( SER_BIT )
         :
@@ -223,8 +223,8 @@ class TinyDebugSerialWriter_1_38400 : public TinyDebugSerialWriter
       (
         "sbi   %[serreg]-1, %[serbit]"            "\n\t"
         "sbi   %[serreg], %[serbit]"              "\n\t"
-        : 
-        : 
+        :
+        :
           [serreg] "I" ( SER_REG ),
           [serbit] "I" ( SER_BIT )
         :
@@ -253,8 +253,8 @@ class TinyDebugSerialWriter_1_115200 : public TinyDebugSerialWriter
       (
         "sbi   %[serreg]-1, %[serbit]"            "\n\t"
         "sbi   %[serreg], %[serbit]"              "\n\t"
-        : 
-        : 
+        :
+        :
           [serreg] "I" ( SER_REG ),
           [serbit] "I" ( SER_BIT )
         :
@@ -273,7 +273,7 @@ class TinyDebugSerialWriter_1_115200 : public TinyDebugSerialWriter
         "nop"                                     "\n\t"      /* 1 */
         "nop"                                     "\n\t"      /* 1 */
         "nop"                                     "\n\t"      /* 1 */
-        
+
         "brcs  L%=b0h"                            "\n\t"      /* 1  (not taken) */
         "nop"                                     "\n\t"      /* 1 */
         "cbi   %[serreg], %[serbit]"              "\n\t"      /* 2  <--- st is 9 cycles */
@@ -397,8 +397,8 @@ class TinyDebugSerialWriter_1_115200 : public TinyDebugSerialWriter
 
         "sei"                                     "\n\t"
 
-        : 
-        : 
+        :
+        :
           [value] "r" ( value ),
           [serreg] "I" ( SER_REG ),
           [serbit] "I" ( SER_BIT )
@@ -422,8 +422,8 @@ class TinyDebugSerialWriter_8_9600 : public TinyDebugSerialWriter
       (
         "sbi   %[serreg]-1, %[serbit]"            "\n\t"
         "sbi   %[serreg], %[serbit]"              "\n\t"
-        : 
-        : 
+        :
+        :
           [serreg] "I" ( SER_REG ),
           [serbit] "I" ( SER_BIT )
         :
@@ -452,8 +452,8 @@ class TinyDebugSerialWriter_8_38400 : public TinyDebugSerialWriter
       (
         "sbi   %[serreg]-1, %[serbit]"            "\n\t"
         "sbi   %[serreg], %[serbit]"              "\n\t"
-        : 
-        : 
+        :
+        :
           [serreg] "I" ( SER_REG ),
           [serbit] "I" ( SER_BIT )
         :
@@ -482,8 +482,8 @@ class TinyDebugSerialWriter_8_115200 : public TinyDebugSerialWriter
       (
         "sbi   %[serreg]-1, %[serbit]"            "\n\t"
         "sbi   %[serreg], %[serbit]"              "\n\t"
-        : 
-        : 
+        :
+        :
           [serreg] "I" ( SER_REG ),
           [serbit] "I" ( SER_BIT )
         :
@@ -512,8 +512,8 @@ class TinyDebugSerialWriter_16_9600 : public TinyDebugSerialWriter
       (
         "sbi   %[serreg]-1, %[serbit]"            "\n\t"
         "sbi   %[serreg], %[serbit]"              "\n\t"
-        : 
-        : 
+        :
+        :
           [serreg] "I" ( SER_REG ),
           [serbit] "I" ( SER_BIT )
         :
@@ -542,8 +542,8 @@ class TinyDebugSerialWriter_16_38400 : public TinyDebugSerialWriter
       (
         "sbi   %[serreg]-1, %[serbit]"            "\n\t"
         "sbi   %[serreg], %[serbit]"              "\n\t"
-        : 
-        : 
+        :
+        :
           [serreg] "I" ( SER_REG ),
           [serbit] "I" ( SER_BIT )
         :
@@ -572,8 +572,8 @@ class TinyDebugSerialWriter_16_115200 : public TinyDebugSerialWriter
       (
         "sbi   %[serreg]-1, %[serbit]"            "\n\t"
         "sbi   %[serreg], %[serbit]"              "\n\t"
-        : 
-        : 
+        :
+        :
           [serreg] "I" ( SER_REG ),
           [serbit] "I" ( SER_BIT )
         :
@@ -607,9 +607,9 @@ class TinyDebugSerialWriter_16_115200 : public TinyDebugSerialWriter
 #elif defined( __AVR_ATtiny85__ )
 
   #if F_CPU <= 8000000L
-    // port B bit 3 (PB3)
+    // port B bit 2 (PB2)
     #define TINY_DEBUG_SERIAL_REGISTER    0x18
-    #define TINY_DEBUG_SERIAL_BIT         3
+    #define TINY_DEBUG_SERIAL_BIT         2
   #else
     // port B bit 2 (PB2)
     #define TINY_DEBUG_SERIAL_REGISTER    0x18
@@ -669,7 +669,7 @@ class TinyDebugSerial : public Stream
     void useStub( void );
 
   public:
-    
+
     TinyDebugSerial( void );
 
     inline void begin( long baud )
